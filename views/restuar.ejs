@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <style media="screen">
+        td{
+          padding: 0px 20px;
+        }
+        .highlight{
+          background: rgb(15, 17, 156);
+        }
+      </style>
+  </head>
+  <body>
+
+<h1>Zomato</h1>
+
+    <select id="categories">
+      <% datas.forEach(function(item){%>
+      <option value= ""+<%=item.name %>+"" ><%=item.name %></option>
+      <%})%>
+    </select>
+    <select class="" id="city">
+      <option value= "thane" >Thane</option>
+      <option value= "panvel" >Panvel</option>
+      <option value= "Nerul" >Nerul</option>
+      <option value= "Dadar" >Dadar</option>
+      <option value= "Ghatkopar" >Ghatkopar</option>
+    </select>
+
+    <select class="" id="cus">
+      <option value= "Chiness" >Chiness</option>
+      <option value= "Thai" >Thai</option>
+      <option value= "Italian" >Italian </option>
+      <option value= "Punjabi" >Punjabi</option>
+    </select>
+<button type="button" name="button" id="search">Search</button>
+
+    <div class="" id='reply'>
+
+      <form class="" action="/restaurant/choice" method="post">
+        <input type="submit" name="button" value='sumbit'/>
+
+        <table >
+          <thead>
+
+          </thead>
+          <tbody id='populate'>
+
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+
+
+    <script>
+    var selected = Array();
+    $('document').on('click',function(){
+
+      $('input:checkbox').each(function () {
+        alert('fadfadfa');
+         var checks = (this.checked ? $(this).val() : "");
+         alert(checks);
+           selected.push(checks);
+         });
+
+    });
+
+
+  $('#pol').on('click',function(){
+    console.log('listeningindinga');
+    var k=0;
+    for(var k=0; k<3;k++)
+    {
+      var ch = document.getElementById(k);
+      if(ch.value == true)
+      {
+        selected.push(ch.name);
+      }
+    }
+    $.ajax({
+      method: 'GET',
+      url:'/table',
+      sucess: function(data){
+        console.log('restuarants selected ');
+      },
+      error: function(error){
+        console.log('error');
+      }
+    })
+  });
+
+      $('#search').on('click',function(){
+        window.onload = getLocation();
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+        function showPosition(position) {
+
+
+
+          var city =  $( "#city option:selected" ).text();
+          var cus =  $( "#cus option:selected" ).text();
+          var cate =  $( "#categories option:selected" ).text();
+          alert(city+ " "+ cus +" "+cate);
+
+
+
+          $.ajax({
+            method : 'POST',
+
+            url:'/restaurant/search',
+             data:{
+              c :city,
+              cusi:cus,
+              categ:cate,
+              lat:position.coords.latitude,
+              long:position.coords.longitude
+            },
+            success: function(data){
+                  console.log(data);
+
+                  //$('#reply').html(data);
+                  var row =" <li>"+data.name+"</li>";
+                  $('#populate').html(" ");
+                  var i=0;
+                  data.forEach(function(item){
+                    i=i+1;
+                    $('#populate').append(" <tr id ="+item.R.res_id+"><td><img src='"+item.thumb+"'  width=50vw alt= 'image' /></td><td>"+item.name+" </td><td> "+item.user_rating.aggregate_rating+"</td><td>"+item.currency+" "+item.average_cost_for_two+"</td><td><input type= 'checkbox' class='restuarant' id='"+i+"' name='"+item.res_id+"' value='"+item.res_id+"'/></td></tr>");
+                  });
+
+
+
+                },
+              error: function(){
+                console.log('ERROR' );
+              }
+            });
+        }
+      });
+
+      $('td').not('[rowspan]').hover(function () {
+    $(this).siblings().andSelf().not('[rowspan]').addClass('highlight');
+    }, function(){
+    $(this)
+    .parent()
+    .find('.highlight')
+    .removeClass('highlight');
+});
+    function showPosition(position) {
+      console.log("jhadf");
+      /*$.ajax({
+        method : 'GET',
+        //url :'/list/cord',
+        url:'/restaurant/cordinates?lat='+position.coords.latitude+"&long="+position.coords.longitude,
+        /*data:{
+          lat:position.coords.latitude,
+          long:position.coords.longitude
+        },
+        sucess: function(){
+          console.log('sucess');
+        },
+        error: function(){
+          console.log("Error");
+        }
+      });*/
+        //x.innerHTML = "Latitude: " + position.coords.latitude +
+          //  "<br>Longitude: " + position.coords.longitude;
+    }
+
+    </script>
+  </body>
+</html>
